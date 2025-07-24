@@ -1,0 +1,193 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script>```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Feedback - Multiple Activities</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+
+    .form-section {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      padding: 30px;
+    }
+
+    .activity-card {
+      border-left: 4px solid #0d6efd;
+      background: #f1f5ff;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 10px;
+    }
+
+    .activity-header {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #0d6efd;
+      margin-bottom: 15px;
+    }
+
+    .btn-remove {
+      float: right;
+      font-size: 0.9rem;
+    }
+
+    .form-label {
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+<div class="container my-5">
+  <div class="form-section">
+    <h2 class="text-center text-primary mb-4">Weekly Activity Submission Form</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form method="POST" action="{{ url_for('form_page') }}">
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label for="name" class="form-label">Name</label>
+          <input type="text" class="form-control" id="name" name="name" value="{{ full_name }}" readonly />
+        </div>
+        <div class="col-md-3">
+          <label for="department" class="form-label">Department</label>
+          <input type="text" class="form-control" id="department" name="department" value="{{ department }}" readonly />
+        </div>
+        <div class="col-md-3">
+          <label for="division" class="form-label">Division</label>
+          <input type="text" class="form-control" id="division" name="division" value="{{ division }}" readonly />
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="comment" class="form-label">Approval from ECOP (if any)</label>
+        <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+      </div>
+      <hr class="mb-4" />
+      <div id="activities-container"></div>
+      <div class="d-flex justify-content-end mb-4">
+        <button type="button" class="btn btn-outline-primary" onclick="addActivity()">+ Add Activity</button>
+      </div>
+      <div class="d-flex justify-content-between align-items-center">
+        <button type="submit" class="btn btn-primary px-4">Submit</button>
+        <a href="{{ url_for('submissions') }}" class="btn btn-secondary">View Submitted Entries</a>
+      </div>
+      <div class="text-center mt-3">
+        <a href="{{ url_for('logout') }}">Logout</a>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function addActivity() {
+    const container = document.getElementById('activities-container');
+    const idx = container.children.length;
+    const activityHTML = `
+      <div class="activity-card">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="activity-header">Activity ${idx + 1}</div>
+          <button type="button" class="btn btn-sm btn-danger btn-remove" onclick="removeActivity(this)">Remove</button>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Activity</label>
+          <textarea class="form-control" name="Activity[]" rows="2" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Work Done</label>
+          <textarea class="form-control" name="work_done[]" rows="2" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-control" name="date[]" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <select class="form-select" name="status[]" required>
+            <option value="">Select Status</option>
+            <option value="Completed">Completed</option>
+            <option value="Ongoing">Ongoing</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Recommendation</label>
+          <textarea class="form-control" name="recommendation[]" rows="2"></textarea>
+        </div>
+      </div>
+    `;
+    const div = document.createElement('div');
+    div.innerHTML = activityHTML;
+    container.appendChild(div);
+  }
+
+  function removeActivity(btn) {
+    const container = document.getElementById('activities-container');
+    if (container.children.length > 1) {
+      btn.closest('.activity-card').remove();
+      const titles = document.querySelectorAll('.activity-header');
+      titles.forEach((h, i) => h.textContent = `Activity ${i + 1}`);
+    } else {
+      alert('At least one activity is required.');
+    }
+  }
+
+  window.onload = function () {
+    addActivity();
+  };
+</script>
+</body>
+</html>
+```
