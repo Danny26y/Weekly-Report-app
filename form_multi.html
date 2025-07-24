@@ -37,153 +37,157 @@
         }
         return gk_fileData[filename] || "";
         }
-        </script><!DOCTYPE html>
+        </script>```html
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Report Form</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            padding: 20px;
-        }
-        .form-container {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            max-width: 800px;
-            margin: auto;
-        }
-        .dynamic-field {
-            border: 1px solid #dee2e6;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-        .remove-btn {
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Feedback - Multiple Activities</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+
+    .form-section {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      padding: 30px;
+    }
+
+    .activity-card {
+      border-left: 4px solid #0d6efd;
+      background: #f1f5ff;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 10px;
+    }
+
+    .activity-header {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #0d6efd;
+      margin-bottom: 15px;
+    }
+
+    .btn-remove {
+      float: right;
+      font-size: 0.9rem;
+    }
+
+    .form-label {
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
-    <div class="form-container">
-        <h2 class="text-center mb-4">Weekly Report Submission</h2>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <form method="POST" action="{{ url_for('form_page') }}" id="reportForm">
-            <div class="mb-3">
-                <label for="name" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ full_name }}" readonly>
-            </div>
-            <div class="mb-3">
-                <label for="department" class="form-label">Department</label>
-                <input type="text" class="form-control" id="department" name="department" value="{{ department }}" readonly>
-            </div>
-            <div class="mb-3">
-                <label for="division" class="form-label">Division</label>
-                <input type="text" class="form-control" id="division" name="division" value="{{ division }}" readonly>
-            </div>
-            <div class="mb-3">
-                <label for="comment" class="form-label">Approval from ECOP (if any)</label>
-                <textarea class="form-control" id="comment" name="comment" rows="4"></textarea>
-            </div>
-            <div id="dynamicFields">
-                <div class="dynamic-field">
-                    <div class="mb-3">
-                        <label for="Activity_0" class="form-label">Activity</label>
-                        <input type="text" class="form-control" id="Activity_0" name="Activity[]" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="work_done_0" class="form-label">Work Done</label>
-                        <textarea class="form-control" id="work_done_0" name="work_done[]" rows="3" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="date_0" class="form-label">Start Date</label>
-                        <input type="date" class="form-control" id="date_0" name="date[]" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="status_0" class="form-label">Status</label>
-                        <select class="form-control" id="status_0" name="status[]" required>
-                            <option value="Completed">Completed</option>
-                            <option value="Ongoing">Ongoing</option>
-                            <option value="Pending">Pending</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="recommendation_0" class="form-label">Recommendation</label>
-                        <textarea class="form-control" id="recommendation_0" name="recommendation[]" rows="3"></textarea>
-                    </div>
-                    <button type="button" class="btn btn-danger remove-btn">Remove</button>
-                </div>
-            </div>
-            <button type="button" class="btn btn-secondary mt-3" id="addField">Add Another Entry</button>
-            <button type="submit" class="btn btn-primary mt-3">Submit</button>
-        </form>
-        <div class="text-center mt-3">
-            <a href="{{ url_for('submissions') }}">View Submissions</a> | 
-            <a href="{{ url_for('logout') }}">Logout</a>
+<div class="container my-5">
+  <div class="form-section">
+    <h2 class="text-center text-primary mb-4">Weekly Activity Submission Form</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form method="POST" action="{{ url_for('form_page') }}">
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label for="name" class="form-label">Name</label>
+          <input type="text" class="form-control" id="name" name="name" value="{{ full_name }}" readonly />
         </div>
-    </div>
+        <div class="col-md-3">
+          <label for="department" class="form-label">Department</label>
+          <input type="text" class="form-control" id="department" name="department" value="{{ department }}" readonly />
+        </div>
+        <div class="col-md-3">
+          <label for="division" class="form-label">Division</label>
+          <input type="text" class="form-control" id="division" name="division" value="{{ division }}" readonly />
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="comment" class="form-label">Approval from ECOP (if any)</label>
+        <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+      </div>
+      <hr class="mb-4" />
+      <div id="activities-container"></div>
+      <div class="d-flex justify-content-end mb-4">
+        <button type="button" class="btn btn-outline-primary" onclick="addActivity()">+ Add Activity</button>
+      </div>
+      <div class="d-flex justify-content-between align-items-center">
+        <button type="submit" class="btn btn-primary px-4">Submit</button>
+        <a href="{{ url_for('submissions') }}" class="btn btn-secondary">View Submitted Entries</a>
+      </div>
+      <div class="text-center mt-3">
+        <a href="{{ url_for('logout') }}">Logout</a>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function addActivity() {
+    const container = document.getElementById('activities-container');
+    const idx = container.children.length;
+    const activityHTML = `
+      <div class="activity-card">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="activity-header">Activity ${idx + 1}</div>
+          <button type="button" class="btn btn-sm btn-danger btn-remove" onclick="removeActivity(this)">Remove</button>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Activity</label>
+          <textarea class="form-control" name="Activity[]" rows="2" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Work Done</label>
+          <textarea class="form-control" name="work_done[]" rows="2" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-control" name="date[]" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <select class="form-select" name="status[]" required>
+            <option value="">Select Status</option>
+            <option value="Completed">Completed</option>
+            <option value="Ongoing">Ongoing</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Recommendation</label>
+          <textarea class="form-control" name="recommendation[]" rows="2"></textarea>
+        </div>
+      </div>
+    `;
+    const div = document.createElement('div');
+    div.innerHTML = activityHTML;
+    container.appendChild(div);
+  }
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let fieldCount = 1;
+  function removeActivity(btn) {
+    const container = document.getElementById('activities-container');
+    if (container.children.length > 1) {
+      btn.closest('.activity-card').remove();
+      const titles = document.querySelectorAll('.activity-header');
+      titles.forEach((h, i) => h.textContent = `Activity ${i + 1}`);
+    } else {
+      alert('At least one activity is required.');
+    }
+  }
 
-        document.getElementById('addField').addEventListener('click', function() {
-            const dynamicFields = document.getElementById('dynamicFields');
-            const newField = document.createElement('div');
-            newField.className = 'dynamic-field';
-            newField.innerHTML = `
-                <div class="mb-3">
-                    <label for="Activity_${fieldCount}" class="form-label">Activity</label>
-                    <input type="text" class="form-control" id="Activity_${fieldCount}" name="Activity[]" required>
-                </div>
-                <div class="mb-3">
-                    <label for="work_done_${fieldCount}" class="form-label">Work Done</label>
-                    <textarea class="form-control" id="work_done_${fieldCount}" name="work_done[]" rows="3" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="date_${fieldCount}" class="form-label">Start Date</label>
-                    <input type="date" class="form-control" id="date_${fieldCount}" name="date[]" required>
-                </div>
-                <div class="mb-3">
-                    <label for="status_${fieldCount}" class="form-label">Status</label>
-                    <select class="form-control" id="status_${fieldCount}" name="status[]" required>
-                        <option value="Completed">Completed</option>
-                        <option value="Ongoing">Ongoing</option>
-                        <option value="Pending">Pending</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="recommendation_${fieldCount}" class="form-label">Recommendation</label>
-                    <textarea class="form-control" id="recommendation_${fieldCount}" name="recommendation[]" rows="3"></textarea>
-                </div>
-                <button type="button" class="btn btn-danger remove-btn">Remove</button>
-            `;
-            dynamicFields.appendChild(newField);
-            fieldCount++;
-        });
-
-        document.getElementById('dynamicFields').addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-btn')) {
-                if (document.querySelectorAll('.dynamic-field').length > 1) {
-                    e.target.parentElement.remove();
-                } else {
-                    alert('At least one entry is required.');
-                }
-            }
-        });
-    </script>
+  window.onload = function () {
+    addActivity();
+  };
+</script>
 </body>
 </html>
+```
