@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .login-header h2 {
+            color: #002060;
+            margin-bottom: 10px;
+        }
+        .login-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .login-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        .login-tab.active {
+            border-bottom: 3px solid #002060;
+            font-weight: bold;
+        }
+        .login-form {
+            display: none;
+        }
+        .login-form.active {
+            display: block;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 8px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background-color: #002060;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #001740;
+        }
+        .messages {
+            margin-top: 15px;
+        }
+        .messages li {
+            list-style-type: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        .error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .password-container {
+            position: relative;
+        }
+        .toggle-icon {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+        }
+        .signup-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h2>DRM System Login</h2>
+        </div>
+        
+        <div class="login-tabs">
+            <div class="login-tab active" onclick="switchTab('user')">User Login</div>
+            <div class="login-tab" onclick="switchTab('admin')">Admin Login</div>
+        </div>
+
+        <!-- User Login Form -->
+        <form method="POST" class="login-form active" id="user-form">
+            <input type="hidden" name="login_type" value="user">
+            <input type="text" name="username" placeholder="Username" required>
+            <div class="password-container">
+                <input type="password" id="user-password" name="password" placeholder="Password" required>
+                <i class="fa-solid fa-eye toggle-icon" onclick="togglePassword('user-password', this)"></i>
+            </div>
+            <button type="submit">Login</button>
+            <div class="signup-link">
+                Don't have an account? <a href="{{ url_for('signup') }}">Sign up here</a>
+            </div>
+        </form>
+
+        <!-- Admin Login Form -->
+        <form method="POST" class="login-form" id="admin-form">
+            <input type="hidden" name="login_type" value="admin">
+            <input type="text" name="username" placeholder="Admin Username" required>
+            <div class="password-container">
+                <input type="password" id="admin-password" name="password" placeholder="Admin Password" required>
+                <i class="fa-solid fa-eye toggle-icon" onclick="togglePassword('admin-password', this)"></i>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="messages">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            // Switch active tab
+            document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.login-tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            // Switch active form
+            document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+            document.getElementById(`${tab}-form`).classList.add('active');
+        }
+
+        function togglePassword(fieldId, icon) {
+            const input = document.getElementById(fieldId);
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        }
+    </script>
+</body>
+</html>
