@@ -243,7 +243,7 @@ def init_routes(app):
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT f.*, CONCAT(u.Fname, ' ', u.Lname) AS name 
+            SELECT f.*, u.username, CONCAT(u.Fname, ' ', u.Lname) AS name 
             FROM Feedback f 
             JOIN users u ON f.user_ID = u.id 
             WHERE f.id = %s
@@ -262,10 +262,10 @@ def init_routes(app):
 
         entry = {
             'ID': row['id'], 'Username': row['username'], 'Name': row['name'],
-            'Department': row['Dept_ID'], 'Division': row['Div_ID'], 
+            'Department': row['Dept_ID'], 'Division': row['Div_ID'],
             'Activity': row['activity'], 'Work Done': row['work_done'],
-            'Start Date': row['start_date'], 'Last Update': row['last_update'], 
-            'Status': row['status'], 'Recommendation': row['recommendation'], 
+            'Start Date': row['start_date'], 'Last Update': row['last_update'],
+            'Status': row['status'], 'Recommendation': row['recommendation'],
             'Approval from ECOP (if any)': row['ecop_approval'], 'Week': row['week']
         }
 
@@ -284,6 +284,7 @@ def init_routes(app):
                 return redirect(url_for('submissions'))
             else:
                 flash('Failed to update entry.', 'danger')
+            return render_template('edit.html', entry=entry)
         return render_template('edit.html', entry=entry)
 
     @app.route('/reset_password', methods=['GET', 'POST'])
